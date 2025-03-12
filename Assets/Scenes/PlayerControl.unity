@@ -4372,7 +4372,7 @@ GameObject:
   - component: {fileID: 513314842}
   - component: {fileID: 513314843}
   - component: {fileID: 513314844}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Body
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -4409,6 +4409,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55329bba8aa906b4fa1918c79e61762e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  collisionCheck: {fileID: 0}
+  collisionCheckDistance: 0
   acList:
   - {fileID: 9100000, guid: a588bbe363bf19149be191d955fd0022, type: 2}
   - {fileID: 9100000, guid: fcc3833ca868f264898c016ca180c1a9, type: 2}
@@ -4561,6 +4563,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11e6206fb46bb6e448c2507a1bbb9026, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  collisionCheck: {fileID: 0}
+  collisionCheckDistance: 0
   player: {fileID: 513314841}
   detector: {fileID: 2098735479}
   detectRadius: 1
@@ -7553,6 +7557,71 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1001 &1064417187
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2166061515070319541, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: m_Name
+      value: DustWarrior
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252244898157431986, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -5.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252244898157431986, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.14
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252244898157431986, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252244898157431986, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252244898157431986, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252244898157431986, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252244898157431986, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252244898157431986, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252244898157431986, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252244898157431986, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8736661734272504849, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: attackCooldown
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8736661734272504849, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
+      propertyPath: SpecialAttackCooldown
+      value: 5
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0c570db608d3a054cba9d46349869d6f, type: 3}
 --- !u!1 &1071509776
 GameObject:
   m_ObjectHideFlags: 0
@@ -14377,7 +14446,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1962320963}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: HitBox
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -16530,3 +16599,4 @@ SceneRoots:
   - {fileID: 1008149006}
   - {fileID: 407457171}
   - {fileID: 3784532535574346904}
+  - {fileID: 1064417187}

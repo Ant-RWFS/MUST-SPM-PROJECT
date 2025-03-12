@@ -8,7 +8,9 @@ public abstract class Entity<Stats> : MonoBehaviour where Stats : EntityStats
     public Rigidbody2D rb { get; private set; }
     public Animator anim { get; private set; }
     #endregion
-
+    [Header("Collision info")]
+    [SerializeField] protected Transform collisionCheck;
+    [SerializeField] protected float collisionCheckDistance;
     protected virtual void Awake()
     {
         sr = GetComponentInChildren<SpriteRenderer>();
@@ -28,7 +30,13 @@ public abstract class Entity<Stats> : MonoBehaviour where Stats : EntityStats
     protected virtual void OnDestroy()
     {
     }
+    public void Damage(int damageNumber)
+    {
 
+        stats.currentHealth = stats.currentHealth - damageNumber;
+
+        //Debug.Log(gameObject + "Damage"+stats.currentHealth);
+    }
     #region Velocity
     public void SetZeroVelocity()
     {
@@ -102,6 +110,13 @@ public abstract class Entity<Stats> : MonoBehaviour where Stats : EntityStats
     #region Die
     public virtual void Die()
     {
+
     }
     #endregion
+
+    public void DestroyEntity(Enemy entity)
+    {
+
+        Destroy(entity.gameObject);
+    }
 }
