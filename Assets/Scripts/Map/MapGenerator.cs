@@ -2,10 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
-using System.Linq;
-using Unity.Mathematics;
+using UnityEngine.Rendering;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public struct TileData
 {
@@ -13,21 +11,28 @@ public struct TileData
     public int y;
     public float offsetX;
     public float offsetY;
-    public bool tileType;// False: Land; True: Water
+    public bool tileType; // False: Land; True: Water
     public int resourceType;
     public int resourceInitID;
-    public bool resourceInstantiated;
-
-    public bool IsSameLocation(int _x, int _y)
-    {
-        if (x == _x && y == _y)
-            return true;
-        else
-            return false;
-    }
+    public bool resourceInstantiatable;
 }
+
+[System.Serializable]
+public struct Area
+{
+    [Range(0, 1f)]
+    public float ratio;
+    [Range(0, 1f)]
+    public float density;
+    [Range(0, 1f)]
+    public float lacunarity;
+}
+
 public class MapGenerator : MonoBehaviour
 {
+    public static MapGenerator instance;
+    public Dictionary<(int, int), TileData> mapData;
+
     [Header("Tilemap")]
     public Tilemap landTilemap;
     public Tilemap waterTilemap;
@@ -36,26 +41,20 @@ public class MapGenerator : MonoBehaviour
     public TileBase waterTile;
 
     public int radius;
-
     public int seed;
     public bool randomSeed;
 
-    [Range(0, 1f)]
-    public float lacunarity;
-
-    [Range(0, 1f)]
-    public float waterRatio;
-
-    [Range(0, 1f)]
-    public float resourceDensity;
+    public Area map;
+    public Area item;
+    public Area dustEnemy;
 
     [Header("Detector")]
     [SerializeField] private Transform mapDetector;
 
     private Transform playerTransform;
     private ItemGenerator itemGenerator;
+    private EnemyGenerator enemyGenerator;
 
-    private List<TileData> mapData;
     private float randomOffset;
 
     private bool isPlayerDetected;
@@ -63,26 +62,35 @@ public class MapGenerator : MonoBehaviour
     private void Awake()
     {
         itemGenerator = GetComponent<ItemGenerator>();
+        enemyGenerator = GetComponent<EnemyGenerator>();
+
+        if (instance != null)
+            Destroy(instance.gameObject);
+        else
+            instance = this;
     }
+
     private void Start()
     {
         InitMap();
-
     }
 
     private void Update()
     {
         UpdateMap();
     }
-
+  
     #region Initialization
-    private void InitMap()
+    public void InitMap()
     {
+        
         InitPlayerTransform();
-
         InitMapData();
-
         UpdateTilemapData();
+        itemGenerator.CleanSpanwedObjects();
+        enemyGenerator.CleanSpawnedEnemies();
+        UpdateTilemapData();//Reupdate the mapdata to ensure the instantiation of objects
+        Debug.Log("初始化地图");
     }
 
     private void InitPlayerTransform() => playerTransform = PlayerManager.instance.playerTransform;
@@ -94,17 +102,11 @@ public class MapGenerator : MonoBehaviour
 
         UnityEngine.Random.InitState(seed);
 
-        mapData = new List<TileData>();
+        mapData = new Dictionary<(int, int), TileData>();
 
         isPlayerDetected = false;
 
         randomOffset = UnityEngine.Random.Range(-100000, 100000);
-    }
-
-    private void CleanTilemap()// High performance cost before set tiles
-    {
-        landTilemap.ClearAllTiles();
-        waterTilemap.ClearAllTiles();
     }
     #endregion
 
@@ -123,7 +125,8 @@ public class MapGenerator : MonoBehaviour
 
         if (!isPlayerDetected)
         {
-            itemGenerator.CleanSpanwedItems();
+            itemGenerator.CleanSpanwedObjects();
+            enemyGenerator.CleanSpawnedEnemies();
             UpdateTilemapData();
 
             mapDetector.position = new Vector3Int((int)playerTransform.position.x, (int)playerTransform.position.y);
@@ -151,10 +154,9 @@ public class MapGenerator : MonoBehaviour
     }
     #endregion
 
-
     private void UpdateTilemapData()
     {
-        List<TileData> updatedMapData = new List<TileData>();
+        Dictionary<(int, int), TileData> updatedMapData = new Dictionary<(int, int), TileData>();
 
         int playerX = (int)playerTransform.position.x;
         int playerY = (int)playerTransform.position.y;
@@ -165,53 +167,98 @@ public class MapGenerator : MonoBehaviour
             {
                 if ((x * x + y * y) <= (radius * radius))
                 {
-                    int resourceType, resourceInitID;
-                    bool tileType, resourceInstantiated;
-                    float offsetX, offsetY, mapNoiseValue, resourceNoise, resourceTypeNoise;
-
-                    mapNoiseValue = Mathf.PerlinNoise((playerX + x) * lacunarity + randomOffset, (playerY + y) * lacunarity + randomOffset);
-                    tileType = mapNoiseValue < waterRatio;
-
-                    resourceNoise = Mathf.PerlinNoise((playerX + x) * lacunarity + randomOffset + 10000, (playerY + y) * lacunarity + randomOffset + 10000);
-
-                    if (!tileType && resourceNoise < resourceDensity)
+                    int objectType, objectInitID;
+                    bool tileType, objectInstantiated;
+                    float offsetX, offsetY, mapNoise, itemNoise, objectTypeNoise, dustEnemyNoise;
+                 
+                    mapNoise = Mathf.PerlinNoise((playerX + x) * map.lacunarity + randomOffset, (playerY + y) * map.lacunarity + randomOffset);
+                    tileType = mapNoise < map.ratio;
+               
+                    itemNoise = Mathf.PerlinNoise((playerX + x) * item.lacunarity + randomOffset + 10000, (playerY + y) * item.lacunarity + randomOffset + 10000);
+                    dustEnemyNoise = Mathf.PerlinNoise((playerX + x) * item.lacunarity + randomOffset + 15000, (playerY + y) * item.lacunarity + randomOffset + 15000);
+                    #region Land and Resource
+                    if (!tileType && itemNoise < map.density)
                     {
-                        resourceTypeNoise = Mathf.PerlinNoise((playerX + x) * lacunarity + randomOffset + 20000, (playerY + y) * lacunarity + randomOffset + 20000);
-
                         offsetX = HashToOffset(playerX + x, playerY + y, seed, 0.4f);
                         offsetY = HashToOffset(playerX + x, playerY + y, seed, 0.4f);
 
-                        if (resourceTypeNoise < 0.5f)
-                            resourceType = 0;
+                        objectTypeNoise = Mathf.PerlinNoise((playerX + x) * map.lacunarity + randomOffset + 20000, (playerY + y) * map.lacunarity + randomOffset + 20000);
+
+                        if (objectTypeNoise < 0.5f)
+                            objectType = 0;
                         else
-                            resourceType = 1;
+                            objectType = 1;
 
-                        resourceInitID = (int)(MurmurHash(playerX + x, playerY + y, seed + resourceType) % itemGenerator.items[resourceType].maxID);
+                        objectInitID = Mathf.Abs((int)(MurmurHash(playerX + x, playerY + y, seed + objectType) % itemGenerator.resources[objectType].maxStage));
+                        objectInstantiated = IsObjectInstantiated(playerX + x, playerY + y);
 
-                        resourceInstantiated = IsItemInstantiated(playerX + x, playerY + y);
-
-                        itemGenerator.UpdateSpawnedItems(resourceType, playerX + x + offsetX, playerY + y + offsetY);
+                        itemGenerator.UpdateSpawnedResources(objectType, playerX + x, playerY + y, offsetX, offsetY);
                     }
+                    #endregion
+
+                    #region Land Items
+                    //else if (!tileType && mapNoise < item.ratio && itemNoise > 1 - item.density)
+                    else if (!tileType)
+                    {
+                        float itemWeight = (1 - itemNoise) * item.density;
+                        float enemyWeight = (1 - dustEnemyNoise) * dustEnemy.density;
+
+                        //if (itemWeight > enemyWeight && mapNoise < item.ratio && itemNoise < item.density)
+                        if (mapNoise < item.ratio && itemNoise < item.density)
+                        {
+                            offsetX = HashToOffset(playerX + x, playerY + y, seed, 0.6f);
+                            offsetY = HashToOffset(playerX + x, playerY + y, seed, 0.6f);
+                            objectTypeNoise = Mathf.PerlinNoise((playerX + x) * item.lacunarity + randomOffset + 20000, (playerY + y) * item.lacunarity + randomOffset + 20000);
+                            objectType = -1;
+                            objectInitID = Mathf.Abs((int)(MurmurHash(playerX + x, playerY + y, seed) % itemGenerator.items.Count));
+                            objectInstantiated = IsObjectInstantiated(playerX + x, playerY + y);
+                            itemGenerator.UpdateSpawnedItems(objectInitID, playerX + x, playerY + y, offsetX, offsetY);
+                        }
+                        else if(mapNoise < dustEnemy.ratio && dustEnemyNoise < dustEnemy.density)
+                        {
+                            offsetX = HashToOffset(playerX + x, playerY + y, seed, 0.5f);
+                            offsetY = HashToOffset(playerX + x, playerY + y, seed, 0.5f);
+                            objectTypeNoise = Mathf.PerlinNoise((playerX + x) * dustEnemy.lacunarity + randomOffset + 20000, (playerY + y) * dustEnemy.lacunarity + randomOffset + 20000);
+                            objectType = -2;
+                            objectInitID = 0;
+                            objectInstantiated = IsObjectInstantiated(playerX + x, playerY + y);
+                            enemyGenerator.UpdateSpawnedDustEnemies(playerX + x, playerY + y, offsetX, offsetY);
+                        }
+                        else
+                        {
+                            offsetX = 0;
+                            offsetY = 0;
+                            objectType = -1;
+                            objectInitID = 0;
+                            objectInstantiated = false;
+                        }
+                    }
+                    #endregion
+
+                    #region Water
                     else
                     {
                         offsetX = 0;
                         offsetY = 0;
-                        resourceType = -1;
-                        resourceInitID = 0;
-                        resourceInstantiated = false;
+                        objectType = -1;
+                        objectInitID = 0;
+                        objectInstantiated = false;
                     }
+                    #endregion
 
-                    updatedMapData.Add(new TileData
+                    var tileData = new TileData
                     {
                         x = playerX + x,
                         y = playerY + y,
                         offsetX = offsetX,
                         offsetY = offsetY,
                         tileType = tileType,
-                        resourceType = resourceType,
-                        resourceInstantiated = resourceInstantiated,
-                        resourceInitID = resourceInitID
-                    });
+                        resourceType = objectType,
+                        resourceInstantiatable = objectInstantiated,
+                        resourceInitID = objectInitID
+                    };
+
+                    updatedMapData[(tileData.x, tileData.y)] = tileData;
                 }
             }
         }
@@ -219,7 +266,7 @@ public class MapGenerator : MonoBehaviour
         UpdateItemData();
         UpdateMapData(updatedMapData);
 
-        foreach (var tileData in updatedMapData)
+        foreach (var tileData in updatedMapData.Values)
         {
             if (!tileData.tileType)
                 landTilemap.SetTile(new Vector3Int(tileData.x, tileData.y), landTile);
@@ -228,72 +275,85 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    private void UpdateMapData(List<TileData> _addList)
+    private void UpdateMapData(Dictionary<(int, int), TileData> _addDict)
     {
-        ConcurrentDictionary<(int, int), TileData> mapDataDict = new ConcurrentDictionary<(int, int), TileData>();
-
-        foreach (var tileData in mapData)
-            mapDataDict[(tileData.x, tileData.y)] = tileData;
-
-        Parallel.ForEach(_addList, tileData => { mapDataDict.TryRemove((tileData.x, tileData.y), out _); });
-
-        Parallel.ForEach(_addList, tileData => { mapDataDict[(tileData.x, tileData.y)] = tileData; });
-
-        mapData = new List<TileData>(mapDataDict.Values);
+        foreach (var kvp in _addDict)
+            mapData[kvp.Key] = kvp.Value;
     }
+
     private void UpdateItemData()
     {
-        List<TileData> updatedMapData = new List<TileData>();
+        Dictionary<(int, int), TileData> updatedMapData = new Dictionary<(int, int), TileData>();
 
-        foreach (var tileData in mapData)
+        foreach (var kvp in mapData)
         {
-            if (tileData.resourceType != -1 && tileData.resourceInstantiated && IsNeighbourLand(tileData.x, tileData.y))
+            var tileData = kvp.Value;
+
+            if (tileData.resourceInstantiatable)
             {
-                GameObject item = itemGenerator.IntantiateSpanwedItems(tileData.resourceType, tileData.x + tileData.offsetX, tileData.y + tileData.offsetY);
-                item.GetComponent<Resource>().InitId = tileData.resourceInitID;
+                if (tileData.resourceType >= 0)
+                {
+                    GameObject spawnedResource = itemGenerator.InstantiateSpanwedResources(tileData.x, tileData.y, tileData.offsetX, tileData.offsetY);
+
+                    if (spawnedResource)
+                    {
+                        Resource resource = spawnedResource.GetComponentInChildren<Resource>();
+                        resource.initStage = tileData.resourceInitID;
+                        resource.x = tileData.x;
+                        resource.y = tileData.y;
+                    }
+                }
+                else if (tileData.resourceType == -1)
+                {
+                    GameObject spawnedItem = itemGenerator.InstantiateSpanwedItems(tileData.x, tileData.y, tileData.offsetX, tileData.offsetY);
+
+                    if (spawnedItem)
+                    {
+                        MapItem item = spawnedItem.GetComponentInChildren<MapItem>();
+                        item.initStage = 1;
+                        item.x = tileData.x;
+                        item.y = tileData.y;
+                    }
+                }
+                else if ((tileData.resourceType == -2))
+                {
+                    GameObject spawnedDustEnemy = enemyGenerator.InstantiateSpanwedDustEnemies(tileData.x, tileData.y, tileData.offsetX, tileData.offsetY);
+
+                    if (spawnedDustEnemy)
+                    {
+                        EnemyManager enemyManager = spawnedDustEnemy.GetComponentInChildren<EnemyManager>();
+                        enemyManager.x = tileData.x;
+                        enemyManager.y = tileData.y;
+                    }
+                }
             }
 
-            updatedMapData.Add(new TileData { x = tileData.x, y = tileData.y, resourceType = tileData.resourceType, resourceInstantiated = false, resourceInitID = tileData.resourceInitID });
+            updatedMapData[(tileData.x, tileData.y)] = new TileData
+            {
+                x = tileData.x,
+                y = tileData.y,
+                resourceType = tileData.resourceType,
+                resourceInstantiatable = false,
+                resourceInitID = tileData.resourceInitID
+            };
         }
 
         mapData = updatedMapData;
     }
-    private bool IsItemInstantiated(int _x, int _y)
+
+    private bool IsObjectInstantiated(int _x, int _y) => !mapData.ContainsKey((_x, _y));
+    public void ItemAdjust(int _x, int _y)
     {
-        foreach (var tileData in mapData)
-            if (tileData.IsSameLocation(_x, _y))
-                return false;
-
-        return true;
-    }
-
-    private bool IsNeighbourLand(int _x, int _y)
-    {
-        int[] offsetX = { -1, 1, 0, 0, -1, -1, 1, 1 };
-        int[] offsetY = { 0, 0, -1, 1, -1, 1, -1, 1 };
-
-        ConcurrentBag<bool> results = new ConcurrentBag<bool>();
-
-        Parallel.ForEach(offsetX.Zip(offsetY, (x, y) => (x, y)), (offset) =>
+        if (mapData.ContainsKey((_x, _y)))
         {
-            int nx = _x + offset.Item1;
-            int ny = _y + offset.Item2;
-
-            bool isNeighbourLand = true;
-
-            foreach (var tileData in mapData)
-            {
-                if (tileData.IsSameLocation(nx, ny))
-                {
-                    isNeighbourLand = !tileData.tileType;
-                    break;
-                }
-            }
-
-            results.Add(isNeighbourLand);
-        });
-
-        return results.All(result => result);
+            TileData tileData = mapData[((_x, _y))];
+            tileData.resourceType = -1;
+        }
+    }
+    public void ItemRegenerate(int _x, int _y)
+    {
+        if (mapData.ContainsKey((_x, _y)))
+            mapData.Remove((_x, _y));
     }
     #endregion
 }

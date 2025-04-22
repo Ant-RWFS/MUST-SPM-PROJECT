@@ -6,7 +6,7 @@ using System.Linq;
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager instance;
-
+    // public Inventory inventory;
     public SQLiteConnection connection;
 
     public int SaveID;
@@ -34,7 +34,6 @@ public class SaveManager : MonoBehaviour
         connection = new SQLiteConnection(dataBasePath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
     }
     #endregion
-
     #region Initialization
     private void InitTables()
     {
@@ -42,7 +41,6 @@ public class SaveManager : MonoBehaviour
         
         InitBuildingResourceTable();
     }
-
     private void InitSaveTable() => connection.CreateTable<MainData>();
     public void InitNatureResourceDB() => connection.CreateTable<NatureResourceData>();//Called In ItemGenerator
     private void InitBuildingResourceTable() => connection.CreateTable<BuildingResourceData>();

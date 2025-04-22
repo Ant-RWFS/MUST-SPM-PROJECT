@@ -5,6 +5,7 @@ public class CameraRotation : MonoBehaviour
 {
     public float rotationTime = .2f;
     private bool isRotating = false;
+    
     void Start()
     {
     
@@ -12,7 +13,10 @@ public class CameraRotation : MonoBehaviour
 
     void Update()
     {
-        transform.position = PlayerManager.instance.playerTransform.position;
+
+        transform.position = PlayerManager.instance.playerTransform.position + CameraShake.Instance.shakePosition;
+        //transform.position = PlayerManager.instance.playerTransform.position;
+
 
         RotateTrigger();
     }
@@ -28,7 +32,7 @@ public class CameraRotation : MonoBehaviour
                 StartCoroutine(Rotate(45, rotationTime));
         }
     }
-
+ 
     IEnumerator Rotate(float _angle, float _time)
     {
         float number = 60 * _time;

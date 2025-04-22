@@ -1,55 +1,116 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Tilemaps;
 using UnityEngine;
 
-public class EnemyState : EntityState
+public interface IEnemyState<out T> where T : EnemyStats
 {
-    public EnemyState(Enemy _entity, EntityStateMachine _stateMachine, string _animBoolName) : base(_entity, _stateMachine, _animBoolName)
+    void Enter();
+    void Update();
+    void Exit();
+    void AnimationFinishTrigger();
+}
+public class EnemyState<SpecificEnemyStats> : IEnemyState<SpecificEnemyStats> where SpecificEnemyStats : EnemyStats
+{
+
+    protected EnemyStateMachine stateMachine;
+    protected Enemy<SpecificEnemyStats> entity;
+
+
+    protected Rigidbody2D rb;
+    private string animBoolName;
+    protected float stateTimer;
+    protected bool triggerCalled;
+
+    
+    protected float Xdir;
+   
+    public EnemyState(Enemy<SpecificEnemyStats> _entity, EnemyStateMachine _stateMachine,string _animBoolName)
     {
+
+        this.entity = _entity;
+        this.stateMachine = _stateMachine;
+        this.animBoolName = _animBoolName;
     }
 
-    public override void Enter()
-    {
-        base.Enter();
-    }
 
-    public override void Exit()
+    public virtual void Enter()
     {
-        base.Exit();
-    }
-
-    public override void Update()
-    {
-        base.Update();
+        triggerCalled = false;
+        rb = entity.rb;
+        entity.anim.SetBool(animBoolName, true);
 
     }
 
-    protected void Flip(Enemy enemy) {
-       
+    public virtual void Update()
+    {
+        stateTimer -= Time.deltaTime;
+
+    }
+    public virtual void Exit()
+    {
+        entity.anim.SetBool(animBoolName, false);
+    }
+
+    public virtual void AnimationFinishTrigger()
+    {
+        triggerCalled = true;
+    }
+    protected void Flip(Enemy<SpecificEnemyStats> enemy)
+    {
+
 
         if (PlayerManager.instance.playerTransform.right.x > 0)
         {
             Xdir = rb.velocity.x;
-            
+
         } // when playerTransform.right== (0.00,1.00,0.00), x do not equal 0 but smaller that 0 in the "if" check, so here I use y to check at the same time.
         else if (PlayerManager.instance.playerTransform.right.x < 0 && PlayerManager.instance.playerTransform.right.y < 0.9 && PlayerManager.instance.playerTransform.right.y > -0.9)
         {
             Xdir = -rb.velocity.x;
-            
+
         }
         else if (PlayerManager.instance.playerTransform.right.y > 0)
         {
             Xdir = rb.velocity.y;
-            
+
         }
         else if (PlayerManager.instance.playerTransform.right.y < 0)
         {
             Xdir = -rb.velocity.y;
-         
+
         }
         enemy.anim.SetFloat("Xdir", Xdir);
         //Debug.Log("Xdir"+Xdir);
-        
+
     }
+    protected void FlipByPosition(Enemy<SpecificEnemyStats> enemy)
+    {
+
+
+        if (PlayerManager.instance.playerTransform.right.x > 0)
+        {
+            Xdir = PlayerManager.instance.playerTransform.position.x - rb.position.x;
+
+        } 
+        else if (PlayerManager.instance.playerTransform.right.x < 0 && PlayerManager.instance.playerTransform.right.y < 0.9 && PlayerManager.instance.playerTransform.right.y > -0.9)
+        {
+           
+            Xdir = rb.position.x - PlayerManager.instance.playerTransform.position.x;
+
+        }
+        else if (PlayerManager.instance.playerTransform.right.y > 0)
+        {
+            Xdir = PlayerManager.instance.playerTransform.position.y - rb.position.y;
+
+        }
+        else if (PlayerManager.instance.playerTransform.right.y < 0)
+        {
+            
+            Xdir = rb.position.y - PlayerManager.instance.playerTransform.position.y;
+
+        }
+        enemy.anim.SetFloat("Xdir", Xdir);
+
+    }
+
 }

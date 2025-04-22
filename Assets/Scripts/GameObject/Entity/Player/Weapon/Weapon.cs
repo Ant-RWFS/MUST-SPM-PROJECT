@@ -3,13 +3,16 @@ using UnityEngine;
 public class Weapon : MonoBehaviour
 {
     [SerializeField] private Bag bag;
-
+    public Inventory inventory;
+    public InventoryManager instance;
     private SpriteRenderer sr;
     private Animator anim;
 
     private Vector2 gunVector;
 
     private float attackTimer;
+    
+    
     private void Awake()
     {
         sr = GetComponentInChildren<SpriteRenderer>();
@@ -84,7 +87,7 @@ public class Weapon : MonoBehaviour
             anim.SetBool("right", false);
     }
 
-    private void WeaponAttack() 
+    private void WeaponAttack()
     {
         if (bag.weapon)
         {
@@ -97,8 +100,13 @@ public class Weapon : MonoBehaviour
                     if (attackTimer < 0)
                     {
                         attackTimer = 1 / gun.firingRatePerSec;
-                        GameObject bullet = Instantiate(gun.bullet, PlayerManager.instance.playerTransform.position + new Vector3(gunVector.x * .25f, gunVector.y * .25f, -.25f), Quaternion.identity, ItemManager.instance.itemTransform);//z÷·∏ﬂ∂»…˙≥…∫Ûø…ƒ‹–Ë“™µ˜’˚≈ˆ◊≤ÃÂµƒ≈–∂œ∏ﬂ∂»
+                        GameObject bullet = Instantiate(gun.bullet, PlayerManager.instance.playerTransform.position + new Vector3(gunVector.x * .25f, gunVector.y * .25f, -.25f), Quaternion.identity, ItemManager.instance.itemTransform);
                         bullet.GetComponentInChildren<SpriteRenderer>().transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(gunVector.y, gunVector.x) * Mathf.Rad2Deg);
+                        inventory.reduceDurability();
+                        string durabilityMessage = inventory.durabilityDict.ContainsKey(inventory.slotIndex) 
+                            ? inventory.durabilityDict[inventory.slotIndex].ToString() 
+                            : "Â∑≤ÁßªÈô§";
+                        Debug.Log($"ÂΩìÂâçÊßΩ‰Ωç {inventory.slotIndex} ËÄê‰πÖÂ∫¶: {durabilityMessage}");
                     }
                 }
             }

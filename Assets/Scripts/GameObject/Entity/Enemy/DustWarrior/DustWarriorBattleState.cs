@@ -5,9 +5,9 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 
-public class DustWarriorBattleState : EnemyState
+public class DustWarriorBattleState : DustWarriorState
 {
-    protected DustWarrior enemy;
+   
     public Transform playerTransform = null;
     
     // This playerTransform is the playerTransform that will be captured by enemy, used as the target of chasing, which means it needs work when enemy capture a player
@@ -15,9 +15,8 @@ public class DustWarriorBattleState : EnemyState
     private Vector3 moveDir;
     private Vector3 enemyAnchor;
 
-    public DustWarriorBattleState(Enemy _entity, EntityStateMachine _stateMachine, string _animBoolName, DustWarrior _enemy) : base(_entity, _stateMachine, _animBoolName)
+    public DustWarriorBattleState(Enemy<DustWarriorStats> _entity, EnemyStateMachine _stateMachine, string _animBoolName, DustWarrior _enemy) : base(_entity, _stateMachine, _animBoolName, _enemy)
     {
-        this.enemy = _enemy;
     }
 
     public override void Enter()
@@ -35,12 +34,7 @@ public class DustWarriorBattleState : EnemyState
     {
         if (collider != null)
         {
-            if (collider.gameObject.CompareTag("Player"))
-            {
-
-                playerTransform = collider.gameObject.transform;
-                
-            }
+            playerTransform = collider.gameObject.transform;
         }
         else { playerTransform = null; }
     }
@@ -48,9 +42,9 @@ public class DustWarriorBattleState : EnemyState
     #region CanAttack
     private bool CanAttack()
     {
-        if (Time.time >= enemy.lastTimeAttacked + enemy.attackCooldown)
+        if (Time.time >= enemy.stats.lastTimeAttacked.GetValue() + enemy.stats.attackCooldown.GetValue())
         {
-            enemy.lastTimeAttacked = Time.time;
+            enemy.stats.lastTimeAttacked.SetValue(Time.time);
             return true;
 
         }
@@ -61,9 +55,9 @@ public class DustWarriorBattleState : EnemyState
     }
     private bool CanSpecialAttack()
     {
-        if (Time.time >= enemy.lastTimeSpecialAttacked + enemy.SpecialAttackCooldown)
+        if (Time.time >= enemy.stats.lastTimeSpecialAttacked.GetValue() + enemy.stats.SpecialAttackCooldown.GetValue())
         {
-            enemy.lastTimeSpecialAttacked = Time.time;
+            enemy.stats.lastTimeSpecialAttacked.SetValue(Time.time);
             return true;
 
         }
@@ -78,7 +72,8 @@ public class DustWarriorBattleState : EnemyState
     {
         base.Update();
 
-       
+        
+
 
         #region FindingAndChasing
 
@@ -86,8 +81,8 @@ public class DustWarriorBattleState : EnemyState
         if (playerTransform != null)
         {
             moveDir = playerTransform.position - enemy.transform.position;
-            enemy.SetEnemyMoveVelocity(moveDir.x, moveDir.y,enemy.chaseSpeed);
-            enemy.previousVelocity=(enemy.rb.velocity);
+            enemy.SetEnemyMoveVelocity(moveDir.x, moveDir.y,enemy.stats.chaseSpeed.GetValue());
+            enemy.stats.previousVelocity=(enemy.rb.velocity);
            
             
         }
@@ -108,7 +103,7 @@ public class DustWarriorBattleState : EnemyState
         {
             float distance;
             distance = Physics2D.Distance(enemy.collider2d, enemy.IsPlayerDetected()).distance;
-            if (distance < enemy.attackDistance) {
+            if (distance < enemy.stats.attackDistance.GetValue()) {
 
                 if (CanSpecialAttack())
                 {
@@ -130,7 +125,7 @@ public class DustWarriorBattleState : EnemyState
 
         #endregion
 
-        if (enemy.stats.currentHealth <= 0)
+        if (enemy.stats.currentHealth.GetValue() <= 0)
         {
             stateMachine.ChangeState(enemy.deathState);
         }

@@ -15,7 +15,8 @@ public class UIManager : MonoBehaviour
         Settings,
         Controls,
         PauseMenu,   
-        Bag      
+        Bag,  
+        Craft
     }
 
     // 当前 UI 状态
@@ -28,6 +29,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject MapUI;
     [SerializeField] private GameObject BagUI;
     [SerializeField] private GameObject inGameUI;
+    [SerializeField] private GameObject CraftUI;
     [SerializeField] private GameObject BlackOverlay;
     
     [SerializeField] public  bool GameIsPaused = false;
@@ -36,6 +38,8 @@ public class UIManager : MonoBehaviour
     private bool isPauseOpen = false;
     private bool isMapOpen = false;
     private bool isBagOpen = false;
+    private bool isCraftOpen = false;
+    
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -58,6 +62,12 @@ public class UIManager : MonoBehaviour
         {
             audioSource.Play();
             BagUIControl();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.C)&&(currentState == UIState.None||currentState == UIState.Craft))
+        {
+            audioSource.Play();
+            CraftUIControl();
         }
     }
     private void HandleEscUse()
@@ -142,7 +152,7 @@ public class UIManager : MonoBehaviour
     {
         if (!isBagOpen)
         {
-            inventoryUI.UpdateUI();
+            inventoryUI.UpdateBagUI();
             ChangeUIState(UIState.Bag);
             BagUI.SetActive(true);
             isBagOpen = true;
@@ -153,6 +163,24 @@ public class UIManager : MonoBehaviour
             ChangeUIState(UIState.None);
             BagUI.SetActive(false);
             isBagOpen = false;
+            GameResume();
+        }
+    }
+    
+    public void CraftUIControl()
+    {
+        if (!isCraftOpen)
+        {
+            ChangeUIState(UIState.Craft);
+            CraftUI.SetActive(true);
+            isCraftOpen = true;
+            GamePause();
+        }
+        else
+        {
+            ChangeUIState(UIState.None);
+            CraftUI.SetActive(false);
+            isCraftOpen = false;
             GameResume();
         }
     }

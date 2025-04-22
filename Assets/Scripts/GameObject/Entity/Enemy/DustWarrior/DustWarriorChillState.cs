@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DustWarriorChillState : EnemyState
+public class DustWarriorChillState : DustWarriorState
 {
 
-    protected DustWarrior enemy;
-    public DustWarriorChillState(Enemy _entity, EntityStateMachine _stateMachine, string _animBoolName, DustWarrior _enemy) : base(_entity, _stateMachine, _animBoolName)
+    
+
+    public DustWarriorChillState(Enemy<DustWarriorStats> _entity, EnemyStateMachine _stateMachine, string _animBoolName, DustWarrior _enemy) : base(_entity, _stateMachine, _animBoolName, _enemy)
     {
-        this.enemy = _enemy;
     }
 
     public override void AnimationFinishTrigger()
@@ -38,9 +38,10 @@ public class DustWarriorChillState : EnemyState
         }
         Flip(enemy);
 
-        if (enemy.stats.currentHealth <= 0)
+        if (enemy.stats.currentHealth.GetValue() <= 0)
         {
             stateMachine.ChangeState(enemy.deathState);
         }
+        
     }
 }

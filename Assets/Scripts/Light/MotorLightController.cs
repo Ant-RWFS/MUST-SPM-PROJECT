@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MotorLightController : MonoBehaviour
@@ -7,26 +8,35 @@ public class MotorLightController : MonoBehaviour
     [SerializeField] private Light headLight;
     [SerializeField] private Light bodyLight;
 
-    [SerializeField] private Vector3[] LightRotationAngles;
+    private Dictionary<(float, float), Vector3> headLightDirs;
 
-    private int[] indexes = new int[] { 0, 1, 2, 3, 4, 5, 6, 7 };
-    private int index;
     private float xInput;
     private float yInput;
     private bool lightOn;
-    private bool isLightBusy;
 
     private void Awake()
     {
-        index = 0;
+        headLightDirs = new Dictionary<(float, float), Vector3>
+        {
+            { (0, 0),   new Vector3(0, 90, 0) },
+            { (1, 0),   new Vector3(0, 90, 0) },
+            { (1, 1),   new Vector3(-30, 60, 0) },
+            { (0, 1),   new Vector3(-45, 0, 0) },
+            { (-1, 1),  new Vector3(-30, -60, 0) },
+            { (-1, 0),  new Vector3(0, -90, 0) },
+            { (-1, -1), new Vector3(15, -120, 0) },
+            { (0, -1),  new Vector3(45, -180, 0) },
+            { (1, -1),  new Vector3(15, 120, 0) }
+        };
+
         xInput = 0;
         yInput = 0;
         lightOn = false;
-        isLightBusy = false;
     }
 
     private void Start()
     {
+
     }
 
     private void Update()
@@ -56,85 +66,16 @@ public class MotorLightController : MonoBehaviour
 
     private void LightSwitchLogic()
     {
-        SwitchLightPerspective();
-
         if (!motor.anim.GetBool("Off") && lightOn)
         {
             LightsOn();
-
-            if ((xInput == 0 && yInput == 0) || (xInput == 1 && yInput == 0))
-                index = indexes[0];//E 0 90
-
-            else if (xInput == 1 && yInput == 1)
-                index = indexes[1];//NE -45 90
-
-            else if (xInput == 0 && yInput == 1)
-                index = indexes[2];//N  -90 90
-
-            else if (xInput == -1 && yInput == 1)
-                index = indexes[3];//NW -45 -90
-
-            else if (xInput == -1 && yInput == 0)
-                index = indexes[4];//W 0 -90
-
-            else if (xInput == -1 && yInput == -1)
-                index = indexes[5];//SW 45 -90
-
-            else if (xInput == 0 && yInput == -1)
-                index = indexes[6];//S 90 90
-
-            else if (xInput == 1 && yInput == -1)
-                index = indexes[7];//SE 45 90
-
-            SwitchLightDirection(index);
+            SwitchLightDirection();
         }
         else
         {
             LightsOff();
             lightOn = false;
         }
-    }
-
-    private void SwitchLightPerspective()
-    {
-        if (!isLightBusy)
-        {
-            if (Input.GetKeyDown(KeyCode.Q))
-                StartCoroutine(LightTraceCameraQ());
-
-            else if (Input.GetKeyDown(KeyCode.E))
-                StartCoroutine(LightTraceCameraE());
-        }
-    }
-
-    private IEnumerator LightTraceCameraQ()
-    {
-        isLightBusy = true;
-
-        for (int i = 0; i < indexes.Length; i++)
-        {
-            indexes[i] += 7;
-            indexes[i] %= 8;
-
-            yield return new WaitForFixedUpdate();
-        }
-
-        isLightBusy = false;
-    }
-
-    private IEnumerator LightTraceCameraE()
-    {
-        isLightBusy = true;
-
-        for (int i = 0; i < indexes.Length; i++)
-        {
-            indexes[i] += 1;
-            indexes[i] %= 8;
-
-            yield return new WaitForFixedUpdate();
-        }
-
-        isLightBusy = false;
     }
 
     private void LightsOn() 
@@ -148,5 +89,5 @@ public class MotorLightController : MonoBehaviour
        headLight.enabled = false;
        bodyLight.enabled = false;
     }
-    private void SwitchLightDirection(int _index) => headLight.transform.rotation = Quaternion.Euler(LightRotationAngles[_index].x, LightRotationAngles[_index].y, LightRotationAngles[_index].z);
+    private void SwitchLightDirection() => headLight.transform.localRotation = Quaternion.Euler(headLightDirs[(xInput, yInput)].x, headLightDirs[(xInput, yInput)].y, headLightDirs[(xInput, yInput)].z);
 }

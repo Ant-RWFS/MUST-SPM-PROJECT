@@ -7,10 +7,13 @@ public class DustWarriorMoveState : DustWarriorChillState
 
     float randomX;
     float randomY;
-    //int moveDir;
-    public DustWarriorMoveState(Enemy _entity, EntityStateMachine _stateMachine, string _animBoolName, DustWarrior enemy) : base(_entity, _stateMachine, _animBoolName, enemy)
+
+    public DustWarriorMoveState(Enemy<DustWarriorStats> _entity, EnemyStateMachine _stateMachine, string _animBoolName, DustWarrior _enemy) : base(_entity, _stateMachine, _animBoolName, _enemy)
     {
     }
+
+    //int moveDir;
+
 
     public override void AnimationFinishTrigger()
     {
@@ -20,7 +23,7 @@ public class DustWarriorMoveState : DustWarriorChillState
     public override void Enter()
     {
         base.Enter();
-        stateTimer = enemy.moveTime;
+        stateTimer = enemy.stats.moveTime.GetValue();
         randomX = Random.Range(-3, 3);
         randomY = Random.Range(-3, 3);
         if (randomX == 0 && randomY == 0)

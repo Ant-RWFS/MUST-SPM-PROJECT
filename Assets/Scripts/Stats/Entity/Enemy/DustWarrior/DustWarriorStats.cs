@@ -4,20 +4,11 @@ using UnityEngine;
 
 public class DustWarriorStats : EnemyStats
 {
-    
-    protected override void Awake()
-    {
-        base.Awake();
-        
-    }
+    [Header("Special Attack info")]
+    public Stat spinDamageNumber;
+    public FloatStat SpecialAttackCooldown;
+    public FloatStat lastTimeSpecialAttacked;
 
-    protected override void Start()
-    {
-        base.Start();
-    }
-
-    protected override void Update()
-    {
-        base.Update();
-    }
+    [SerializeField] public GameObject skillObject;
+    [SerializeField] public GameObject dustWarriorGO;
 }

@@ -4,9 +4,9 @@ public class EntityStats : MonoBehaviour
 {
     #region Info
 
-    [Header("Stats Info")] 
+    [Header("Stats Info")]
     public Stat maxHealth;
-    public int currentHealth;
+    public Stat currentHealth;
     public Stat damage;
 
     [Header("Velocity Info")]
@@ -26,6 +26,9 @@ public class EntityStats : MonoBehaviour
     [Header("Other Info")]
     public bool isBusy;
     public bool isInvisible;
+
+    [Header("Collision info")]
+    [SerializeField] public Transform collisionCheck;
     #endregion
 
     protected virtual void Awake()
@@ -35,7 +38,7 @@ public class EntityStats : MonoBehaviour
 
     protected virtual void Start()
     {
-        currentHealth = GetMaxHealthValue();
+        InitCurrentHealthValue();
     }
 
     protected virtual void Update()
@@ -43,11 +46,11 @@ public class EntityStats : MonoBehaviour
         EntityDie();
     }
 
-    private void EntityDie() 
+    private void EntityDie()
     {
-        if (currentHealth < 0)
+        if (currentHealth.GetValue() < 0)
             isDead = true;
     }
-    
     public int GetMaxHealthValue() => maxHealth.GetValue();
+    public void InitCurrentHealthValue() => currentHealth.SetValue(GetMaxHealthValue());
 }

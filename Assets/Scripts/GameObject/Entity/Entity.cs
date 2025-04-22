@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public abstract class Entity<Stats> : MonoBehaviour where Stats : EntityStats
@@ -10,7 +11,7 @@ public abstract class Entity<Stats> : MonoBehaviour where Stats : EntityStats
     #endregion
     [Header("Collision info")]
     [SerializeField] protected Transform collisionCheck;
-    [SerializeField] protected float collisionCheckDistance;
+    
     protected virtual void Awake()
     {
         sr = GetComponentInChildren<SpriteRenderer>();
@@ -30,10 +31,10 @@ public abstract class Entity<Stats> : MonoBehaviour where Stats : EntityStats
     protected virtual void OnDestroy()
     {
     }
-    public void Damage(int damageNumber)
+    public void Damage(int _damage)
     {
 
-        stats.currentHealth = stats.currentHealth - damageNumber;
+        stats.currentHealth.SetValue(stats.currentHealth.GetValue() - _damage);
 
         //Debug.Log(gameObject + "Damage"+stats.currentHealth);
     }
@@ -98,6 +99,21 @@ public abstract class Entity<Stats> : MonoBehaviour where Stats : EntityStats
             stats.currentVector = adjustedVector.normalized;
         }
     }
+
+    public void LockRB() => rb.constraints = RigidbodyConstraints2D.FreezeAll;
+    public void UnlockRB() => rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+    public void SetKnockBack(float _x, float _y) => StartCoroutine(HitKnockBack(_x, _y));
+    protected virtual IEnumerator HitKnockBack(float _x, float _y)
+    {
+        stats.isKnocked = true;
+
+        rb.velocity = new Vector2(_x, _y);
+
+        yield return new WaitForSeconds(stats.knockDuration);
+
+        stats.isKnocked = false;
+    }
     #endregion
 
     #region Sprite Effect
@@ -114,9 +130,5 @@ public abstract class Entity<Stats> : MonoBehaviour where Stats : EntityStats
     }
     #endregion
 
-    public void DestroyEntity(Enemy entity)
-    {
-
-        Destroy(entity.gameObject);
-    }
+   
 }

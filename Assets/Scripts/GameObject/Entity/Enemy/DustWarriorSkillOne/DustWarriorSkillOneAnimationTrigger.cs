@@ -9,17 +9,17 @@ public class DustWarriorSkillOneAnimationTrigger : MonoBehaviour
     private void AnimationTrigger()
     {
         enemy.AnimationFinishTrigger();
-        Destroy(enemy.dustWarriorSkillGO);
+        Destroy(enemy.stats.dustWarriorSkillGO);
     }
     private void DamageTrigger()
     {
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(enemy.damageCheck.position, enemy.damageDistance, enemy.whatIsPlayer);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(enemy.stats.damageCheck.position, enemy.stats.damageDistance.GetValue(), enemy.stats.whatIsPlayer);
 
         foreach (var hit in colliders)
         {
             if (hit.GetComponentInParent<Player>() != null)
             {
-                hit.GetComponentInParent<Player>().Damage(enemy.damageNumber);
+                hit.GetComponentInParent<Player>().Damage(enemy.stats.damageNumber.GetValue());
 
             }
             

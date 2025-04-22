@@ -4,43 +4,34 @@ using Unity.VisualScripting;
 using UnityEditor.UIElements;
 using UnityEngine;
 
-public class Enemy : Entity<EnemyStats>
+public interface EnemyInterface
 {
+    void Damage(int _damage);
+    void SetKnockBack(float _x, float _y);
+    EnemyStats statsI { get; }
+    GameObject selfI { get; }
+    Transform transformI { get; }
+}
+
+public class Enemy<SpecificEnemyStats> : Entity<SpecificEnemyStats>, EnemyInterface where SpecificEnemyStats : EnemyStats
+{
+    public GameObject self;
+    public GameObject selfI => this.self ;
+    public EnemyStats statsI => base.stats;
+    public Transform transformI => this.transform;   
     public Collider2D collider2d { get; private set; }
-   
     public Transform entityTransform { get; private set; }
 
-    [Header("Move info")]
-    public float moveTime;
-    public float idleTime;
-    public float chaseTime;
-    [SerializeField] public Vector2 previousVelocity;
-    [Header("Attack info")]
-    public float chaseSpeed;
-    public float attackDistance;
-    public float attackCooldown;
-    public float lastTimeAttacked;
-    public Transform damageCheck;
-    public float damageDistance;
-    public int damageNumber;
+    public EnemyStateMachine stateMachine;
 
-    [Header("PlayerCheck info")]
-    [SerializeField] protected float playerCheckDistance = 1;
-    [SerializeField] public LayerMask whatIsPlayer;
-
-    public EntityStateMachine stateMachine;
-    
     protected override void Awake()
     {
-        
         base.Awake();
         collider2d = GetComponent<Collider2D>();
-
     }
 
     protected override void Start()
     {
-       
         base.Start();
         entityTransform = collider2d.transform;
     }
@@ -50,22 +41,14 @@ public class Enemy : Entity<EnemyStats>
         base.Update();
         stateMachine.currentState.Update();
 
- 
+        if (Mathf.Abs(Vector3.Distance(transform.position, PlayerManager.instance.playerTransform.position)) >= MapGenerator.instance.radius - 2.5f)
+            DeactivateEnemy();
+        else 
+            ActivateEnemy();
     }
    
-    public virtual Collider2D IsPlayerDetected() => Physics2D.OverlapCircle(new Vector2(collisionCheck.position.x, collisionCheck.position.y), playerCheckDistance, whatIsPlayer);
+    public virtual Collider2D IsPlayerDetected() => Physics2D.OverlapCircle(new Vector2(stats.collisionCheck.position.x, stats.collisionCheck.position.y), stats.playerCheckDistance.GetValue(), stats.whatIsPlayer);
     public virtual void AnimationFinishTrigger() => stateMachine.currentState.AnimationFinishTrigger();
-
-    protected virtual void OnDrawGizmos()
-    {
-        
-        Gizmos.DrawWireSphere(collisionCheck.position, playerCheckDistance);
-        Gizmos.DrawWireSphere (collisionCheck.position, attackDistance);
-        Gizmos.DrawWireSphere(collisionCheck.position, damageDistance);
-    }
-
-    
-
     public void SetEnemyMoveVelocity(float _x, float _y)
     {
         if (stats.isKnocked)
@@ -91,7 +74,7 @@ public class Enemy : Entity<EnemyStats>
         if (stats.isKnocked)
             return;
 
-        rb.velocity = _vector * chaseSpeed * stats.moveSpeed.GetValue();
+        rb.velocity = _vector * stats.chaseSpeed.GetValue() * stats.moveSpeed.GetValue();
         stats.rollSpeed.SetValue(stats.moveSpeed.GetValue());
     }
     public void SetEnemyMoveVelocity(Vector2 _vector, float _time)
@@ -103,4 +86,19 @@ public class Enemy : Entity<EnemyStats>
         stats.rollSpeed.SetValue(stats.moveSpeed.GetValue());
     }
 
+    public void EnemyDie() => Destroy(self.gameObject);
+
+    private void ActivateEnemy() 
+    {
+        sr.enabled = true;
+        anim.enabled = true;
+        collider2d.enabled = true;
+    }
+
+    private void DeactivateEnemy() 
+    {
+        sr.enabled = false;
+        anim.enabled = false;
+        collider2d.enabled = false;
+    }
 }

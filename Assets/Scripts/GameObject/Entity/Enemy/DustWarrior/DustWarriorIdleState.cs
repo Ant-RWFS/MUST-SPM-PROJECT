@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DustWarriorIdleState : DustWarriorChillState
 {
-    public DustWarriorIdleState(Enemy _entity, EntityStateMachine _stateMachine, string _animBoolName, DustWarrior entity) : base(_entity, _stateMachine, _animBoolName, entity)
+    public DustWarriorIdleState(Enemy<DustWarriorStats> _entity, EnemyStateMachine _stateMachine, string _animBoolName, DustWarrior _enemy) : base(_entity, _stateMachine, _animBoolName, _enemy)
     {
     }
 
@@ -16,7 +16,7 @@ public class DustWarriorIdleState : DustWarriorChillState
     public override void Enter()
     {
         base.Enter();
-        stateTimer =enemy.idleTime;
+        stateTimer =enemy.stats.idleTime.GetValue();
     }
 
     public override void Exit()

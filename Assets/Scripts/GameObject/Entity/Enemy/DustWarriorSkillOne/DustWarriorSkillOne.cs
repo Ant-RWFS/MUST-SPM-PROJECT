@@ -2,15 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DustWarriorSkillOne : Enemy
+public class DustWarriorSkillOne : EnemySkill<DustWarriorSkillOneStats>
 {
-    public GameObject dustWarriorSkillGO;
-    public DustWarrior dustWarrior;
+  
     public DustWarriorSkillOneReleaseState  releaseState { get; private set; }
     protected override void Awake()
     {
         base.Awake();
-        stateMachine = new EntityStateMachine();
+        stateMachine = new EnemySkillStateMachine();
         //dustWarrior = GetComponentInParent<DustWarrior>();
         releaseState = new DustWarriorSkillOneReleaseState(this,stateMachine,"Release",this);
         
