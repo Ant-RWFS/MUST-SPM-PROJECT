@@ -317,7 +317,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86c75aecb0274f84eab80899f33e76b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  item: {fileID: 11400000, guid: 5053934370957d5448280c9327999b9d, type: 2}
+  item: {fileID: 11400000, guid: c1c70eb5abc8e6f4ca8378df0a54529c, type: 2}
   PlayerInventory: {fileID: 11400000, guid: 910748f7ca6f79e43ad912d1a6ba1132, type: 2}
   self: {fileID: 4011555186004387269}
 --- !u!61 &4476615828309662245

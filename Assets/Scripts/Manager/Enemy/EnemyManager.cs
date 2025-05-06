@@ -6,7 +6,6 @@ public class EnemyManager : MonoBehaviour
 {
     private bool edgeItem;
     [SerializeField] public GameObject self;
-
     [SerializeField] private List<GameObject> enemies;
 
     [SerializeField] private float regenerateTime;
@@ -35,6 +34,7 @@ public class EnemyManager : MonoBehaviour
     {
         EnemyGenerateLogic();
         AvoidSpawnedInWater();
+        ActivateEnemyLogic();
 
         if (GetComponentInChildren<EnemyInterface>() != null)
         {
@@ -45,7 +45,8 @@ public class EnemyManager : MonoBehaviour
         }
         else
             ResetDestroyTime();
-       
+
+
     }
 
     protected virtual void OnDestroy()
@@ -106,5 +107,16 @@ public class EnemyManager : MonoBehaviour
     {
         if (destroyTimer != 0)
             destroyTimer = 0;
+    }
+
+    private void ActivateEnemyLogic() 
+    {
+        if (GetComponentInChildren<EnemyInterface>() != null)
+        {
+            if (NPCManager.instance.isPeace)
+                GetComponentInChildren<EnemyInterface>().selfI.SetActive(false);
+            else
+                GetComponentInChildren<EnemyInterface>().selfI.SetActive(true);
+        }
     }
 }

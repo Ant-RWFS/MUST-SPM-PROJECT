@@ -9,6 +9,7 @@ using System.Linq;
 
 public class UI_Craft : MonoBehaviour
 {
+    public static UI_Craft instanceSelf;
     public Inventory inventory;
     public CraftManager instance;
     public GameObject slotGrid;
@@ -17,7 +18,7 @@ public class UI_Craft : MonoBehaviour
     public TextMeshProUGUI ItemInfo;
     public Image PreviewImage;
     public Button BuildButton;
-    
+    public QuickBarManager quickBar;
     [Space]
     public GameObject ConsumedslotGrid;
     public ConsumedItem ConsumedslotPrefab;
@@ -32,6 +33,13 @@ public class UI_Craft : MonoBehaviour
     private bool itemComsumed= true;
     public GameObject itemOnworld;
 
+    private void Awake()
+    {
+        if (instanceSelf != null)
+            Destroy(instanceSelf);
+        else
+            instanceSelf = this;
+    }
     private void Start()
     {
         UpdateCraftrUI();
@@ -69,6 +77,7 @@ public class UI_Craft : MonoBehaviour
 
     public void StartCraft()
     {
+        inventory.UpdateList();
         if(instance == null)
             return;
         BuildItem item = instance.BuildItems[currentPointer];
@@ -90,6 +99,7 @@ public class UI_Craft : MonoBehaviour
                 break;
         }
         UpdateCraftP2();
+        quickBar.UpdateQuickBarUI();
     }
     #region Update UI
     public void UpdateCraftrUI()
@@ -126,6 +136,7 @@ public class UI_Craft : MonoBehaviour
         if (instance == null)
         {
             Debug.Log("需要工作台");
+            BuildButton.interactable = false;
             return;
         }
         BuildItem item = instance.BuildItems[currentPointer];
@@ -135,8 +146,8 @@ public class UI_Craft : MonoBehaviour
         PreviewImage.sprite = item.image;
 
         // about building
-        bool canBuild = true;
-        BuildButton.interactable = true;
+        bool canBuild;
+        BuildButton.interactable = false;
         
         foreach (Transform child in ConsumedslotGrid.transform)
         {
@@ -152,6 +163,7 @@ public class UI_Craft : MonoBehaviour
             {
                 Debug.Log("consume material");
                 item.consumedItems[i].item.heldAmount -= item.consumedItems[i].amount;
+                inventory.inventoryChanged();
             }
             newSlot.amount.text = item.consumedItems[i].item.heldAmount + "/" + item.consumedItems[i].amount;
             newSlot.Image.sprite = item.consumedItems[i].item.itemImage;
@@ -161,6 +173,12 @@ public class UI_Craft : MonoBehaviour
                 canBuild = false;
                 BuildButton.interactable = canBuild;
             }
+            else
+            {
+                canBuild = true;
+                BuildButton.interactable = canBuild;
+            }
+            
         }
 
         itemComsumed = true;
@@ -184,9 +202,10 @@ public class UI_Craft : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             // Build(mousePosition);
-            Vector3? worldPosition = GetMouseWorldPosition();
-            if (worldPosition.HasValue)
-                StartBuilding(worldPosition.Value);        
+            // Vector3? worldPosition = GetMouseWorldPosition();
+            // if (worldPosition.HasValue)
+                StartBuilding(MouseWorldPosition3D.instance.worldPosition.Value);    
+
         }
         
         // 右键点击：取消建造
@@ -205,8 +224,8 @@ public class UI_Craft : MonoBehaviour
     {
         Debug.Log("item built"+position);
         itemComsumed = false;
-        GameObject builtObject = Instantiate(buildPrefab, position, Quaternion.identity);
-        builtObject.transform.SetParent(itemOnworld.transform, false);
+        GameObject builtObject = Instantiate(buildPrefab, position, Quaternion.identity, ItemManager.instance.transform);
+        // builtObject.transform.SetParent(itemOnworld.transform, false);
         SpriteRenderer renderer = builtObject.GetComponentInChildren<SpriteRenderer>();
         Debug.Log($"Renderer 是否为 null: {renderer == null}");
         if (renderer != null)
@@ -229,7 +248,7 @@ public class UI_Craft : MonoBehaviour
 
         Vector3 intersectionPoint = ray.origin;
 
-        return new Vector3(intersectionPoint.x / 12, intersectionPoint.y / 12, 0f);
+        return new Vector3(intersectionPoint.x / 10, intersectionPoint.y / 10, 0f);
     }
     #endregion
     

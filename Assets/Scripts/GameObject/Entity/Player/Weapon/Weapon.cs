@@ -100,7 +100,7 @@ public class Weapon : MonoBehaviour
                     if (attackTimer < 0)
                     {
                         attackTimer = 1 / gun.firingRatePerSec;
-                        GameObject bullet = Instantiate(gun.bullet, PlayerManager.instance.playerTransform.position + new Vector3(gunVector.x * .25f, gunVector.y * .25f, -.25f), Quaternion.identity, ItemManager.instance.itemTransform);
+                        GameObject bullet = Instantiate(gun.bullet, PlayerManager.instance.playerTransform.position + new Vector3(0, 0, -.25f), Quaternion.identity, ItemManager.instance.itemTransform);
                         bullet.GetComponentInChildren<SpriteRenderer>().transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(gunVector.y, gunVector.x) * Mathf.Rad2Deg);
                         inventory.reduceDurability();
                         string durabilityMessage = inventory.durabilityDict.ContainsKey(inventory.slotIndex) 

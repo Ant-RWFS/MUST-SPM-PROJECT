@@ -9,27 +9,22 @@ public class PlayerDieState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        player.stats.isInvisible = true;
         player.LockRB();
+        NPCManager.instance.isPeace = true;
     }
 
     public override void Exit()
     {
         base.Exit();
         player.UnlockRB();
-        player.stats.InitCurrentHealthValue();
+        player.stats.isInvisible = false;
+        NPCManager.instance.isPeace = false;
+
     }
 
     public override void Update()
     {
         base.Update();
-
-        if(!player.anim.GetBool("Die"))
-            PlayerRespawn();
-    }
-
-    private void PlayerRespawn() 
-    {
-        player.transform.position = new Vector3(10, 10, 0);//respawn position
-        player.stateMachine.ChangeState(player.idleState);
     }
 }

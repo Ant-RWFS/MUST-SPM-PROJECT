@@ -22,7 +22,7 @@ public class PlayerAnimationTrigger : MonoBehaviour
 
     private void EnterInvisibleMode() => player.stats.isInvisible = true;
     private void ExitInvisibleMode() => player.stats.isInvisible = false;
-    private void DeathExitTrigger() => player.anim.SetBool("Die", false);
+    private void DeathFXTrigger() => GameObject.Find("Canvas").GetComponent<UIManager>().ActivateDarkScreen();
     private void RollingExitTrigger() => player.anim.SetBool("Roll", false);
     private void SlashingExitTrigger() => player.anim.SetBool("Attack", false);
     private void AttackDamageTrigger()

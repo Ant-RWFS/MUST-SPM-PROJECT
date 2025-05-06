@@ -1,6 +1,6 @@
 using UnityEngine;
 using SQLite4Unity3d;
-public class NewBehaviourScript : MonoBehaviour
+public class InteractiveItemManager : MonoBehaviour
 {
     public SQLiteConnection connection; 
     private void Start()

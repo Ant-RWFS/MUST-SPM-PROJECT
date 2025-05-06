@@ -106,6 +106,16 @@ public class InventoryManager : MonoBehaviour
                 inventory.UseItem(index);
                 UpdateBagUI();
                 break;
+
+            case ItemType.Medic:
+                inventory.UseItem(index);
+                UpdateBagUI();
+                break;
+
+            case ItemType.Currency:
+                inventory.UseItem(index);
+                UpdateBagUI();
+                break;
         }
     }
 

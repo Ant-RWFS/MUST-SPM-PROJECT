@@ -15,6 +15,6 @@ MonoBehaviour:
   itemName: Stone
   itemImage: {fileID: -599354732, guid: 45042944beeb2d34e8121b7d2a1b3464, type: 3}
   maxStackSize: 99
-  heldAmount: 56
+  heldAmount: 88
   itemType: 1
   itemInfo: Used to build things(stone)

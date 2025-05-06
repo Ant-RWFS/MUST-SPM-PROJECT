@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3683910288771246875}
   - component: {fileID: 2996817299435001772}
-  m_Layer: 11
+  m_Layer: 10
   m_Name: DamageBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -78,7 +78,7 @@ GameObject:
   - component: {fileID: 5259060738783214998}
   - component: {fileID: 3749435590663826111}
   - component: {fileID: 6978428142346560351}
-  m_Layer: 11
+  m_Layer: 10
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -155,7 +155,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4392899830705082279}
   - component: {fileID: 1881714339176192866}
-  m_Layer: 11
+  m_Layer: 10
   m_Name: Anchor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -199,7 +199,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 158249661921099288}
-  m_Layer: 11
+  m_Layer: 10
   m_Name: RifleBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -232,7 +232,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3566560721336708960}
   - component: {fileID: 4440856848743556099}
-  m_Layer: 11
+  m_Layer: 10
   m_Name: Animator
   m_TagString: Untagged
   m_Icon: {fileID: 0}

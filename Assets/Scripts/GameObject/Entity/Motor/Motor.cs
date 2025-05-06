@@ -6,6 +6,7 @@ public class Motor : Entity<MotorStats>
     public Player player;
     public Transform detector;
     public float detectRadius;
+    public GameObject hint;
     #endregion
     #region States
     public MotorStateMachine stateMachine { get; private set; }

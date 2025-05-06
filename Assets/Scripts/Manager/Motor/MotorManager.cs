@@ -4,6 +4,7 @@ public class MotorManager : MonoBehaviour
 {
     public static MotorManager instance;
     public Transform motorTransform;
+    public GameObject motorGO;
     public Motor motor;
 
     private void Awake()

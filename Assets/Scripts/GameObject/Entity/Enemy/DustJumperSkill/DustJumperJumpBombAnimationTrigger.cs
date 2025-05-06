@@ -19,8 +19,10 @@ public class DustJumperJumpBombAnimationTrigger : MonoBehaviour
         {
             if (hit.GetComponentInParent<Player>() != null)
             {
-                hit.GetComponentInParent<Player>().Damage(enemy.stats.damageNumber.GetValue());
-
+                if (!PlayerManager.instance.player.stats.isInvisible)
+                {
+                    hit.GetComponentInParent<Player>().Damage(enemy.stats.damageNumber.GetValue());
+                }
             }
 
         }

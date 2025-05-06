@@ -72,7 +72,7 @@ public class MapGenerator : MonoBehaviour
 
     private void Start()
     {
-        InitMap();
+        // InitMap();
     }
 
     private void Update()
@@ -97,7 +97,7 @@ public class MapGenerator : MonoBehaviour
 
     private void InitMapData()
     {
-        if (!randomSeed)
+        if (randomSeed)
             seed = Time.time.GetHashCode();
 
         UnityEngine.Random.InitState(seed);
@@ -214,7 +214,7 @@ public class MapGenerator : MonoBehaviour
                             objectInstantiated = IsObjectInstantiated(playerX + x, playerY + y);
                             itemGenerator.UpdateSpawnedItems(objectInitID, playerX + x, playerY + y, offsetX, offsetY);
                         }
-                        else if(mapNoise < dustEnemy.ratio && dustEnemyNoise < dustEnemy.density)
+                        else if (mapNoise < dustEnemy.ratio && dustEnemyNoise < dustEnemy.density && (playerX + x > 20 || playerX + x < 0) && (playerY + y > 20 || playerY + y < 0))
                         {
                             offsetX = HashToOffset(playerX + x, playerY + y, seed, 0.5f);
                             offsetY = HashToOffset(playerX + x, playerY + y, seed, 0.5f);

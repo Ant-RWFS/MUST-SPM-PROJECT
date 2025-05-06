@@ -14,12 +14,17 @@ public class QuickBarManager : MonoBehaviour
     public GameObject slotGridQuickBar;
     public Slot slotPrefabQuickBar;
 
-    
+    public void SubscribeToInventoryChanges(Inventory inventory)
+    {
+        inventory.OnInventoryChanged += UpdateQuickBarUI;  // 订阅事件
+        inventory.OnInventoryChanged += this.inventory.UpdateList;
+    }
     
     // private int selectedIndex = -1; // 当前选中的物品索引
 
     private void Awake()
     {
+        UpdateQuickBarUI();
         if (instance != null)
             Destroy(this);
         instance = this;
@@ -27,13 +32,15 @@ public class QuickBarManager : MonoBehaviour
     
     void Start()
     {
+        SubscribeToInventoryChanges(inventory);
+        UpdateQuickBarUI();
     }
     
     void Update()
     {
+        inventory.UpdateList();
         Vector3 mousePosition = Input.mousePosition;
         // Debug.Log($"鼠标世界位置: {mousePosition}");
-        UpdateQuickBarUI();
         // 检查暂停状态
         if (Time.timeScale == 0) return;
 

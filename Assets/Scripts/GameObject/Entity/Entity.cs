@@ -33,10 +33,7 @@ public abstract class Entity<Stats> : MonoBehaviour where Stats : EntityStats
     }
     public void Damage(int _damage)
     {
-
         stats.currentHealth.SetValue(stats.currentHealth.GetValue() - _damage);
-
-        //Debug.Log(gameObject + "Damage"+stats.currentHealth);
     }
     #region Velocity
     public void SetZeroVelocity()

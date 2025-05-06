@@ -26,6 +26,7 @@ public class Bullet : MonoBehaviour
     private void Start()
     {
         flightDir = new Vector3(Mathf.Cos((sr.transform.eulerAngles.z + CameraManager.instance.cameraAngle) * Mathf.Deg2Rad), Mathf.Sin((sr.transform.eulerAngles.z + CameraManager.instance.cameraAngle) * Mathf.Deg2Rad)).normalized;
+        sr.enabled = false;
     }
 
     private void Update()
@@ -42,7 +43,7 @@ public class Bullet : MonoBehaviour
 
     private void BulletFlight()
     {
-        flightTimer += Time.deltaTime;//ÔöÖµ¼ÆËã±ÜÃâµ¹¼ÆÊ±Ö±½ÓÉ¾³ýÎïÌå
+        flightTimer += Time.deltaTime;//ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½âµ¹ï¿½ï¿½Ê±Ö±ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
         rb.velocity = flightDir * (speed + PlayerManager.instance.player.rb.velocity.magnitude);
 
@@ -52,7 +53,7 @@ public class Bullet : MonoBehaviour
 
     private void BulletInRange()
     {
-        if (Mathf.Abs(Vector3.Distance(transform.position, PlayerManager.instance.playerTransform.position)) >= MapGenerator.instance.radius - 2.5f)
+        if (Mathf.Abs(Vector3.Distance(transform.position, PlayerManager.instance.playerTransform.position)) >= MapGenerator.instance.radius - 2.5f || Mathf.Abs(Vector3.Distance(transform.position, PlayerManager.instance.playerTransform.position)) <= 0.35f)
             sr.enabled = false;
         else
             sr.enabled = true;

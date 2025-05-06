@@ -31,19 +31,36 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject inGameUI;
     [SerializeField] private GameObject CraftUI;
     [SerializeField] private GameObject BlackOverlay;
+    [SerializeField] private GameObject DarkScreen;
     
     [SerializeField] public  bool GameIsPaused = false;
     [SerializeField] private InventoryManager inventoryUI; // 背包 UI 脚本
+    [SerializeField] private Save save;
     
     private bool isPauseOpen = false;
     private bool isMapOpen = false;
     private bool isBagOpen = false;
     private bool isCraftOpen = false;
     
+    private GameManager gameManager;
+
     private void Start()
     {
+        // 在场景中搜索第一个匹配的GameManager组件
+        gameManager = FindObjectOfType<GameManager>();
+
+        if (gameManager != null)
+        {
+            Debug.Log("成功找到GameManager");
+        }
+        else
+        {
+            Debug.LogError("未找到GameManager！请确保它存在于场景中");
+        }
+        
         audioSource = GetComponent<AudioSource>();
     }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -136,15 +153,16 @@ public class UIManager : MonoBehaviour
     }
     public void ControlPauseMenu()
     {
-        if(!isPauseOpen)
+        if(currentState == UIState.PauseMenu)
         {
-            PauseMenu.SetActive(true);
+            PauseMenu.SetActive(false);
             isPauseOpen = !isPauseOpen;
         }
         else
         {
-            PauseMenu.SetActive(false);
+            PauseMenu.SetActive(true);
             isPauseOpen = !isPauseOpen;
+
         }
     }
     // ReSharper disable Unity.PerformanceAnalysis
@@ -186,6 +204,7 @@ public class UIManager : MonoBehaviour
     }
     public void Quit()
     {
+        save.SaveAllData(gameManager.selectedSlot);
         Application.Quit();
     }
     public void GamePause()
@@ -198,6 +217,11 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 1.0f;
         GameIsPaused = false;
         ChangeUIState(UIState.None);
+    }
+
+    public void MainMenu()
+    {
+        SceneManager.LoadScene(0, LoadSceneMode.Single); // 保留游戏场景
     }
 
     #region Button function
@@ -243,6 +267,24 @@ public class UIManager : MonoBehaviour
     {
         ChangeUIState(UIState.Map);
         MapUI.SetActive(true);
+    }
+
+    public void ActivateDarkScreen()
+    {
+        DarkScreen.SetActive(true);
+    }
+    public void CloseDarkScreen()
+    {
+        DarkScreen.SetActive(false);
+        PlayerRespawn();
+    }
+
+    private void PlayerRespawn()
+    {
+        PlayerManager.instance.player.stats.InitCurrentHealthValue();
+        PlayerManager.instance.player.anim.SetBool("Die", false);
+        PlayerManager.instance.player.transform.position = PlayerManager.instance.player.guide.position + new Vector3(-1, 0, 0);
+        PlayerManager.instance.player.stateMachine.ChangeState(PlayerManager.instance.player.idleState);
     }
     #endregion
 }

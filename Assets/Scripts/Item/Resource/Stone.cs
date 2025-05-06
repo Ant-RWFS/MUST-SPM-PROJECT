@@ -1,4 +1,4 @@
-using UnityEditor.Animations;
+
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Stone", menuName = "Inventory/Resource/Stone")]

@@ -36,7 +36,7 @@ public class MapItem : MonoBehaviour
     {
         AvoidSpawnedInWater();
 
-        if (Mathf.Abs(Vector3.Distance(transform.position, PlayerManager.instance.playerTransform.position)) >= MapGenerator.instance.radius - 2.5f)
+        if (Mathf.Abs(Vector3.Distance(transform.position, PlayerManager.instance.playerTransform.position)) >= MapGenerator.instance.radius - 3.5f)
         {
             DeactivateItem();
             CalculateDestroyTime();

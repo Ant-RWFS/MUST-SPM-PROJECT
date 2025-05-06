@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class DustWarriorAnimationTrigger : MonoBehaviour
 {
+    public List<GameObject> droppedItems;
     private DustWarrior enemy => GetComponentInParent<DustWarrior>();
 
     private void AnimationTrigger()
@@ -19,8 +20,10 @@ public class DustWarriorAnimationTrigger : MonoBehaviour
         {
             if(hit.GetComponentInParent<Player>()!= null)
             {
-                hit.GetComponentInParent<Player>().Damage(enemy.stats.damageNumber.GetValue());
-                
+                if (!PlayerManager.instance.player.stats.isInvisible)
+                {
+                    hit.GetComponentInParent<Player>().Damage(enemy.stats.damageNumber.GetValue());
+                }
             }
             else { Debug.Log("no"); }
         }
@@ -34,8 +37,10 @@ public class DustWarriorAnimationTrigger : MonoBehaviour
         {
             if (hit.GetComponentInParent<Player>() != null)
             {
-                hit.GetComponentInParent<Player>().Damage(enemy.stats.spinDamageNumber.GetValue());
-
+                if (!PlayerManager.instance.player.stats.isInvisible)
+                {
+                    hit.GetComponentInParent<Player>().Damage(enemy.stats.spinDamageNumber.GetValue());
+                }
             }
             else { Debug.Log("no"); }
         }
@@ -50,4 +55,12 @@ public class DustWarriorAnimationTrigger : MonoBehaviour
     }
 
     private void DeathTrigger() { Destroy(enemy.stats.dustWarriorGO); }
+
+    private void ItemDropTrigger() 
+    {
+        if (droppedItems.Count > 0)
+        {
+            GameObject droppedItem = Instantiate(droppedItems[Random.Range(0, droppedItems.Count)], enemy.transform.position, Quaternion.identity, ItemManager.instance.itemTransform);
+        }
+    }
 }

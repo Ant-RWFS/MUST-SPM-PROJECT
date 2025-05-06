@@ -28,7 +28,8 @@ public class ConsumedItemInfo
 public class CraftManager : MonoBehaviour
 {
     public List<BuildItem> BuildItems;
-    [SerializeField] private UI_Craft uiCraft;
+    //[SerializeField] private UI_Craft uiCraft;
+    [SerializeField] private GameObject hint;
 
     public void Start()
     {
@@ -36,26 +37,34 @@ public class CraftManager : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        //if (collision.CompareTag("Player"))
+        if (collision.GetComponent<Player>())
         {
-            if (uiCraft != null)
+            if (UI_Craft.instanceSelf!=null)
             {
-                uiCraft.SetCraftManager(this); 
-                uiCraft.UpdateCraftrUI();
+                UI_Craft.instanceSelf.SetCraftManager(this); 
+                UI_Craft.instanceSelf.UpdateCraftrUI();
             }
+
+            if (hint.activeSelf == false)
+                hint.SetActive(true);
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
         // 玩家离开时清空或隐藏 UI
-        if (collision.CompareTag("Player"))
+        //if (collision.CompareTag("Player"))
+        if (collision.GetComponent<Player>())
         {
-            if (uiCraft != null)
+            if (UI_Craft.instanceSelf != null)
             {
-                uiCraft.SetCraftManager(null); 
-                uiCraft.UpdateCraftrUI();
+                UI_Craft.instanceSelf.SetCraftManager(null); 
+                UI_Craft.instanceSelf.UpdateCraftrUI();
             }
+
+            if(hint.activeSelf == true)
+                hint.SetActive(false);
         }
     }
 }

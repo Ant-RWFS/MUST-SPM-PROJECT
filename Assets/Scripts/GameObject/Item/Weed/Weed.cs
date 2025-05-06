@@ -19,6 +19,6 @@ public class Weed : MapItem
 
     protected override void Update()
     {
-        base.Update();
+        base.Update();     
     }
 }

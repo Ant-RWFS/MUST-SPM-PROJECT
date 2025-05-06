@@ -195,6 +195,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29f92fa21e27d2444b0748f567d0eb45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  droppedItems:
+  - {fileID: 6523861131566644680, guid: 7ac2d62e531b1bd4f864e3d7cecb74af, type: 3}
+  - {fileID: 7304739863385467950, guid: 977a1b972375ecd49ad29c925ec9a7b9, type: 3}
 --- !u!1 &7856974213592861828
 GameObject:
   m_ObjectHideFlags: 0

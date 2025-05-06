@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Threading;
+
 
 public class Slot : MonoBehaviour
 {
@@ -16,31 +17,40 @@ public class Slot : MonoBehaviour
     public Image fillImage; // 填充区域的 Image 组件
 
     
-    public int index;
     private Color greenColor = Color.green; // 0.8 以上
     private Color yellowColor = Color.yellow; // 0.4 到 0.8
     private Color redColor = Color.red; // 0 到 0.4
+    public int index; // 用于标识槽位的索引
 
     void Start()
     {
-        if (slotItem.itemType!=ItemType.Weapon)
+        // 如果物品不是武器，隐藏耐久度 slider，反之隐藏数量
+        if (slotItem.itemType != ItemType.Weapon)
         {
-            slider.GameObject().SetActive(false);
+            slider.gameObject.SetActive(false);
         }
-        Update();
+        else
+        {
+            slotNum.gameObject.SetActive(false);
+        }
 
+        if (!inventory.durabilityDict.ContainsKey(index)&&slotItem.itemType == ItemType.Weapon)
+        {
+            updateDuraDict();
+        }
     }
 
     private void Update()
     {
+        // 如果字典中包含当前槽位的索引，更新耐久度显示
         if (inventory.durabilityDict.ContainsKey(index))
         {
-            slider.value = inventory.durabilityDict[index]*0.01f;
-            // Debug.Log(inventory.durabilityDict[index]);
+            slider.value = inventory.durabilityDict[index] * 0.01f;
             UpdateColor(slider.value);
         }
     }
 
+    // 更新槽位颜色显示
     void UpdateColor(float value)
     {
         if (value >= 0.8f)
@@ -57,9 +67,25 @@ public class Slot : MonoBehaviour
         }
     }
 
-
+    // 在点击槽位时调用，更新物品信息
     public void ItemOnClicked()
     {
         InventoryManager.UpdateItemInfo(slotItem.itemInfo);
     }
+
+    private void updateDuraDict()
+    {
+        if (inventory.durabilityDict.ContainsKey(index + 1))
+        {       
+            int value = inventory.durabilityDict[index + 1];
+                 inventory.durabilityDict.Remove(index + 1);
+                 inventory.durabilityDict.Add(index, value);
+        }
+
+
+    }
 }
+    
+    
+        
+

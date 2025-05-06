@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class DustJumperAnimationTrigger : MonoBehaviour
 {
+    public List<GameObject> droppedItems;
     private DustJumper enemy => GetComponentInParent<DustJumper>();
 
     private void AnimationTrigger()
@@ -44,5 +45,11 @@ public class DustJumperAnimationTrigger : MonoBehaviour
 
         Physics2D.IgnoreCollision(enemy.collider2d, playerCollider,false);
     }
-
+    private void ItemDropTrigger()
+    {
+        if (droppedItems.Count > 0)
+        {
+            GameObject droppedItem = Instantiate(droppedItems[Random.Range(0, droppedItems.Count)], enemy.transform.position, Quaternion.identity, ItemManager.instance.itemTransform);
+        }
+    }
 }

@@ -1,12 +1,13 @@
-using UnityEditor.Animations;
 using UnityEngine;
 
 public class Player : Entity<PlayerStats>
 {
     #region Components
-    public AnimatorController[] acList;
+    public RuntimeAnimatorController[] acList;
     public CircleCollider2D coll;
     #endregion
+
+    public Transform guide;
 
     #region States
     public PlayerStateMachine stateMachine { get; private set; }
